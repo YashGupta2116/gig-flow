@@ -17,7 +17,6 @@ const BidListModal = ({ gig, onClose }) => {
       setLoading(true);
       try {
         await dispatch(hireBid(bidId)).unwrap();
-        // Refresh the bids list to show updated status
         await dispatch(fetchBidsForGig(gig._id));
         alert("Freelancer hired successfully!");
         onClose();

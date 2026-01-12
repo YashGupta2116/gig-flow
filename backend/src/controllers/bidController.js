@@ -94,7 +94,6 @@ export async function hireBidder(req, res) {
   const { bidId } = req.params;
   const ownerId = req.user._id;
 
-  // Helper function to send notification
   const sendNotification = async (bid, gig, updatedBid) => {
     const io = req.app.get("io");
     if (io) {
@@ -110,7 +109,6 @@ export async function hireBidder(req, res) {
     }
   };
 
-  // Try transaction-based approach first (requires replica set)
   const session = await mongoose.startSession();
   let transactionBid = null;
   let transactionGig = null;
@@ -136,8 +134,6 @@ export async function hireBidder(req, res) {
         throw new Error("Not Authorized");
       }
 
-      // CRITICAL: Atomically update gig status only if still OPEN (prevents race condition)
-      // This ensures that if two admins click "Hire" simultaneously, only one succeeds
       const updatedGig = await gigs.findOneAndUpdate(
         { _id: transactionGig._id, status: "OPEN" },
         { status: "ASSIGNED" },
@@ -150,14 +146,12 @@ export async function hireBidder(req, res) {
         );
       }
 
-      // Update the hired bid
       await bids.findByIdAndUpdate(
         transactionBid._id,
         { status: "HIRED" },
         { session }
       );
 
-      // Reject all other pending bids for this gig atomically
       await bids.updateMany(
         {
           gigId: transactionGig._id,
@@ -169,7 +163,6 @@ export async function hireBidder(req, res) {
       );
     });
 
-    // Transaction succeeded - fetch updated bid once and send notification
     const updatedBid = await bids
       .findById(bidId)
       .populate("freelancerId", "name email")
@@ -182,8 +175,6 @@ export async function hireBidder(req, res) {
       bid: updatedBid,
     });
   } catch (error) {
-    // If transaction error (replica set not available), fall back to atomic operations
-    // Check for both common MongoDB transaction error messages
     const isTransactionError =
       error.message &&
       (error.message.includes("replica set") ||
@@ -192,7 +183,6 @@ export async function hireBidder(req, res) {
     if (isTransactionError) {
       await session.endSession();
 
-      // Fallback: Atomic operations with race condition prevention
       try {
         const bid = await bids.findById(bidId).populate("gigId");
 
@@ -212,7 +202,6 @@ export async function hireBidder(req, res) {
           return res.status(403).json({ message: "Not Authorized" });
         }
 
-        // CRITICAL: Atomic operation - Only update if status is still OPEN (prevents race condition)
         const updatedGig = await gigs.findOneAndUpdate(
           { _id: gig._id, status: "OPEN" },
           { status: "ASSIGNED" },
@@ -226,10 +215,8 @@ export async function hireBidder(req, res) {
           });
         }
 
-        // Update the hired bid
         await bids.findByIdAndUpdate(bid._id, { status: "HIRED" });
 
-        // Reject all other pending bids for this gig
         await bids.updateMany(
           {
             gigId: gig._id,
@@ -254,7 +241,6 @@ export async function hireBidder(req, res) {
         res.status(500).json({ message: fallbackError.message });
       }
     } else {
-      // Other transaction errors (validation, etc.)
       const statusCode = error.message.includes("not found")
         ? 404
         : error.message.includes("Authorized")
@@ -267,8 +253,6 @@ export async function hireBidder(req, res) {
   } finally {
     try {
       await session.endSession();
-    } catch (e) {
-      // Session might already be ended
-    }
+    } catch (e) {}
   }
 }

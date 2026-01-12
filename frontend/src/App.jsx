@@ -18,7 +18,7 @@ function App() {
     if (Notification.permission === "default") {
       Notification.requestPermission();
     }
-    // Always try to get user on mount - cookie is httpOnly so we can't check it client-side
+
     dispatch(getMe()).finally(() => setIsChecking(false));
   }, [dispatch]);
 
