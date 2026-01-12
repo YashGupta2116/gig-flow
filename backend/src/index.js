@@ -26,7 +26,7 @@ io.on("connection", (socket) => {
   console.log("user connected :", socket.id);
 
   socket.on("join", (userId) => {
-    socket, join(userId);
+    socket.join(userId);
     console.log(`User ${userId} joined their room`);
   });
 
@@ -37,12 +37,14 @@ io.on("connection", (socket) => {
 
 app.set("io", io);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -53,7 +55,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/gigs", gigRouter);
 app.use("/api/bids", bidRouter);
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   connectDB();
   console.log(`Server running on port ${PORT}`);
 });

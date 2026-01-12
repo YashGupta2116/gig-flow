@@ -14,16 +14,16 @@ export async function register(req, res) {
         .json({ success: "False", message: "User already exists" });
     }
 
-    const hashedPass = bcrypt.hash(password, 10);
+    const hashedPass = await bcrypt.hash(password, 10);
 
-    const user = await users.create({ name, email, hashedPass });
+    const user = await users.create({ name, email, password: hashedPass });
 
     const token = generateToken(user._id);
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -39,7 +39,7 @@ export async function register(req, res) {
 
 export async function login(req, res) {
   try {
-    const { email, passowrd } = req.body;
+    const { email, password } = req.body;
 
     const user = await users.findOne({ email });
 
@@ -47,7 +47,7 @@ export async function login(req, res) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const isPasswordCorrect = bcrypt.compare(passowrd, user.password);
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect)
       return res.status(401).json({ message: "Invalid email or password" });
@@ -57,7 +57,7 @@ export async function login(req, res) {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
@@ -74,6 +74,8 @@ export async function login(req, res) {
 export async function logout(req, res) {
   res.cookie("token", "", {
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
     expires: new Date(0),
   });
   res.json({ message: "Logged out successfully" });

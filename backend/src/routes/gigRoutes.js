@@ -1,4 +1,4 @@
-import Router from "express";
+import { Router } from "express";
 import { protect } from "../middleware/auth.middleware.js";
 import {
   createGig,

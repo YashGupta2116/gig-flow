@@ -1,8 +1,13 @@
 import { users } from "../models/User.js";
+import jwt from "jsonwebtoken";
 
-export const protect = async (req, next, res) => {
+export const protect = async (req, res, next) => {
   try {
     let token;
+
+    if (req.method === "OPTIONS") {
+      return next();
+    }
 
     if (req.cookies && req.cookies.token) {
       token = req.cookies.token;

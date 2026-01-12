@@ -10,14 +10,14 @@ export async function getGigs(req, res) {
         { title: { $regex: search, $options: "i" } },
         { description: { $regex: search, $options: "i" } },
       ];
-
-      const foundGigs = await gigs
-        .find(query)
-        .populate("ownerId", "name email")
-        .sort("-createdAt");
-
-      res.json(foundGigs);
     }
+
+    const foundGigs = await gigs
+      .find(query)
+      .populate("ownerId", "name email")
+      .sort("-createdAt");
+
+    res.json(foundGigs);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -56,7 +56,7 @@ export async function createGig(req, res) {
     });
 
     const populatedGig = await gigs
-      .findById(createGig._id)
+      .findById(createdGig._id)
       .populate("ownerId", "name email");
 
     res.status(201).json(populatedGig);

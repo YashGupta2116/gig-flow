@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/bids";
+const API_URL = "http://localhost:3000/api/bids";
 
 axios.defaults.withCredentials = true;
 
@@ -37,7 +37,12 @@ export const hireBid = createAsyncThunk(
       const { data } = await axios.patch(`${API_URL}/${bidId}/hire`);
       return data;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to hire freelancer";
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -64,13 +69,29 @@ const bidSlice = createSlice({
       })
       .addCase(hireBid.fulfilled, (state, action) => {
         const updatedBid = action.payload.bid;
-        state.bids = state.bids.map((bid) =>
-          bid._id === updatedBid._id
-            ? updatedBid
-            : bid.gigId === updatedBid.gigId && bid.status === "PENDING"
-            ? { ...bid, status: "REJECTED" }
-            : bid
-        );
+        const gigId = updatedBid.gigId?._id || updatedBid.gigId;
+
+        state.bids = state.bids.map((bid) => {
+          const bidGigId = bid.gigId?._id || bid.gigId;
+          if (bid._id === updatedBid._id) {
+            return updatedBid;
+          }
+          if (String(bidGigId) === String(gigId) && bid.status === "PENDING") {
+            return { ...bid, status: "REJECTED" };
+          }
+          return bid;
+        });
+
+        state.myBids = state.myBids.map((bid) => {
+          const bidGigId = bid.gigId?._id || bid.gigId;
+          if (bid._id === updatedBid._id) {
+            return updatedBid;
+          }
+          if (String(bidGigId) === String(gigId) && bid.status === "PENDING") {
+            return { ...bid, status: "REJECTED" };
+          }
+          return bid;
+        });
       });
   },
 });

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/gigs";
+const API_URL = "http://localhost:3000/api/gigs";
 
 axios.defaults.withCredentials = true;
 
@@ -9,7 +9,7 @@ export const fetchGigs = createAsyncThunk(
   "gigs/fetchAll",
   async (search = "") => {
     const { data } = await axios.get(
-      `${API_URL}${search ? `?search=${search}` : ""}`
+      `${API_URL}${search ? `?search=${encodeURIComponent(search)}` : ""}`
     );
     return data;
   }
