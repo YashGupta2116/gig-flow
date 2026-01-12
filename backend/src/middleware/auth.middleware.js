@@ -1,4 +1,4 @@
-import { users } from "../models/User";
+import { users } from "../models/User.js";
 
 export const protect = async (req, next, res) => {
   try {

@@ -1,4 +1,4 @@
-import { gigs } from "../models/Gigs";
+import { gigs } from "../models/Gigs.js";
 
 export async function getGigs(req, res) {
   const { search } = req.query;

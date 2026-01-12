@@ -1,5 +1,5 @@
-import { bids } from "../models/Bid";
-import { gigs } from "../models/Gigs";
+import { bids } from "../models/Bid.js";
+import { gigs } from "../models/Gigs.js";
 
 import mongoose from "mongoose";
 
@@ -143,7 +143,7 @@ export async function hireBidder(req, res) {
     const io = req.app.get("io");
 
     if (io) {
-      io.to(bid.freelancerId.toString()).emit("HIRED", {
+      io.to(bid.freelancerId.toString()).emit("hired", {
         message: `You have been hired for "${gig.title}"!`,
         gig: {
           id: gig._id,

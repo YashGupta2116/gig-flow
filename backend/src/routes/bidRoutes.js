@@ -4,7 +4,8 @@ import {
   getBidsForGig,
   getUserBids,
   hireBidder,
-} from "../controllers/bidController";
+} from "../controllers/bidController.js";
+import { protect } from "../middleware/auth.middleware.js";
 
 const router = Router();
 

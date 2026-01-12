@@ -1,11 +1,11 @@
 import Router from "express";
-import { protect } from "../middleware/auth.middleware";
+import { protect } from "../middleware/auth.middleware.js";
 import {
   createGig,
   getGigById,
   getGigs,
   getMyGigs,
-} from "../controllers/gigsController";
+} from "../controllers/gigsController.js";
 
 const router = Router();
 

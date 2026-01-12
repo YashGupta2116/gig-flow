@@ -1,16 +1,16 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { connectDB } from "./config/db";
+import { connectDB } from "./config/db.js";
 import http from "http";
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 
 dotenv.config();
 // router
-import authRouter from "./routes/authRoutes";
-import gigRouter from "./routes/gigRoutes";
-import bidRouter from "./routes/bidRoutes";
+import authRouter from "./routes/authRoutes.js";
+import gigRouter from "./routes/gigRoutes.js";
+import bidRouter from "./routes/bidRoutes.js";
 
 const app = express();
 const server = http.createServer(app);
