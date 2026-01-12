@@ -3,7 +3,7 @@ import { gigs } from "../models/Gigs";
 export async function getGigs(req, res) {
   const { search } = req.query;
   try {
-    let query = { status: "open" };
+    let query = { status: "OPEN" };
 
     if (search) {
       query.$or = [
