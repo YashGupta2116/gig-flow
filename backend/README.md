@@ -32,8 +32,6 @@ Create a `.env` file in the backend directory:
 ```env
 PORT=3000
 MONGO_URI="your-mongo-db-url"
-# Or for MongoDB Atlas:
-# MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/gigflow
 
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 NODE_ENV=development
