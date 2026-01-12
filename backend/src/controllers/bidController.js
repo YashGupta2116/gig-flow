@@ -140,6 +140,20 @@ export async function hireBidder(req, res) {
       .populate("freelancerId", "name email")
       .populate("gigId", "title budget");
 
+    const io = req.app.get("io");
+
+    if (io) {
+      io.to(bid.freelancerId.toString()).emit("HIRED", {
+        message: `You have been hired for "${gig.title}"!`,
+        gig: {
+          id: gig._id,
+          title: gig.title,
+          budget: gig.budget,
+        },
+        bid: updatedBid,
+      });
+    }
+
     res.json({
       message: "Freelancer hired successfully",
       bid: updatedBid,
